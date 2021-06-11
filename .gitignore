@@ -3,6 +3,7 @@
 
 # Ignore Gradle build output directory
 build
+bin
 
 .vscode/*
 !.vscode/settings.json
@@ -20,7 +21,8 @@ build
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
