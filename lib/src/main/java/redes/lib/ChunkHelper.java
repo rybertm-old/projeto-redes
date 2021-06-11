@@ -1,4 +1,4 @@
-package projeto.redes;
+package redes.lib;
 
 import java.util.Arrays;
 import java.util.List;

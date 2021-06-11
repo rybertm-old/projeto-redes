@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'projeto-redes'
-include('app')
+include 'lib', 'client', 'server'

@@ -1,4 +1,4 @@
-package projeto.redes;
+package redes.lib;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
