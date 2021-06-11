@@ -28,6 +28,11 @@ dependencies {
     implementation 'one.util:streamex:0.7.3'
 }
 
+test {
+    testLogging {
+        events "PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR"
+    }
+}
 // application {
 //     // Define the main class for the application.
 //     mainClass = 'redes.App'
