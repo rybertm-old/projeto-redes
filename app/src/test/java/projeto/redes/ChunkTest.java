@@ -20,8 +20,9 @@ public class ChunkTest {
         var data = "This is where your secret message will be!";
         int crc = Integer.parseUnsignedInt("2882656334");
 
-        List<Byte> chunk = StreamEx.of(Chunk.fromIntToBytes(length)).append(chunkType.chars().mapToObj(i -> (byte) i))
-                .append(data.chars().mapToObj(i -> (byte) i)).append(Chunk.fromIntToBytes(crc)).toList();
+        List<Byte> chunk = StreamEx.of(ChunkHelper.fromIntToBytes(length))
+                .append(chunkType.chars().mapToObj(i -> (byte) i)).append(data.chars().mapToObj(i -> (byte) i))
+                .append(ChunkHelper.fromIntToBytes(crc)).toList();
 
         return Chunk.fromBytes(chunk);
     }
@@ -33,9 +34,9 @@ public class ChunkTest {
         var data = "This is where your secret message will be!";
         int crc = Integer.parseUnsignedInt("2882656334");
 
-        List<Byte> chunkBytes = StreamEx.of(Chunk.fromIntToBytes(length))
+        List<Byte> chunkBytes = StreamEx.of(ChunkHelper.fromIntToBytes(length))
                 .append(chunkType.chars().mapToObj(i -> (byte) i)).append(data.chars().mapToObj(i -> (byte) i))
-                .append(Chunk.fromIntToBytes(crc)).toList();
+                .append(ChunkHelper.fromIntToBytes(crc)).toList();
 
         var chunk = Chunk.fromBytes(chunkBytes);
 
@@ -57,9 +58,9 @@ public class ChunkTest {
         var data = "This is where your secret message will be!";
         int crc = Integer.parseUnsignedInt("2882656333");
 
-        List<Byte> chunkBytes = StreamEx.of(Chunk.fromIntToBytes(length))
+        List<Byte> chunkBytes = StreamEx.of(ChunkHelper.fromIntToBytes(length))
                 .append(chunkType.chars().mapToObj(i -> (byte) i)).append(data.chars().mapToObj(i -> (byte) i))
-                .append(Chunk.fromIntToBytes(crc)).toList();
+                .append(ChunkHelper.fromIntToBytes(crc)).toList();
 
         assertThrows(InvalidParameterException.class, () -> Chunk.fromBytes(chunkBytes));
     }
