@@ -15,6 +15,9 @@ public class ChunkHelper {
         int n0 = array[3];
 
         return n3 | n2 | n1 | n0;
+
+        // bytes.toArray(new Byte[0]);
+        // return ByteBuffer.wrap(ArrayUtils.toPrimitive(lengthInBytes)).getInt();
     }
 
     public static List<Byte> fromIntToBytes(Integer value) {
@@ -30,5 +33,20 @@ public class ChunkHelper {
         b[3] = (byte) n0;
 
         return Arrays.asList(b);
+    }
+
+    private static List<Byte> subList(List<Byte> data, int start, int end) {
+        int size = end - start;
+        if (size == 0) {
+            return new ArrayList<>(1);
+        }
+
+        var list = new ArrayList<Byte>(size);
+
+        for (int i = start; i < end; i++) {
+            list.add(data.get(i));
+        }
+
+        return list;
     }
 }

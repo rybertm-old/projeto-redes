@@ -7,21 +7,38 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
 import one.util.streamex.StreamEx;
 
 public class ChunkTest {
+    private static Stream<Byte> dataInBytes;
+
     private static Chunk test_chunk() {
-        int length = 42;
         var chunkType = "RuSt";
         var data = "This is where your secret message will be!";
-        int crc = Integer.parseUnsignedInt("2882656334");
+        return chunkFromStrings(chunkType, data);
+    }
 
+    public static List<Chunk> testingChunks() {
+        List<Chunk> chunks = new ArrayList<>();
+        chunks.add(chunkFromStrings("FrSt", "I am the first chunk"));
+        chunks.add(chunkFromStrings("miDl", "I am another chunk"));
+        chunks.add(chunkFromStrings("LASt", "I am the last chunk"));
+        return chunks;
+    }
+
+    private static Chunk chunkFromStrings(String chunkType, String data) {
+        int crc = Integer.parseUnsignedInt("2882656334");
+        List<Byte> dataInBytes = data.chars().mapToObj(i -> (byte) i).collect(Collectors.toList());
+        int length = Math.toIntExact(dataInBytes.size());
         List<Byte> chunk = StreamEx.of(ChunkHelper.fromIntToBytes(length))
-                .append(chunkType.chars().mapToObj(i -> (byte) i)).append(data.chars().mapToObj(i -> (byte) i))
+                .append(chunkType.chars().mapToObj(i -> (byte) i)).append(dataInBytes)
                 .append(ChunkHelper.fromIntToBytes(crc)).toList();
 
         return Chunk.fromBytes(chunk);
