@@ -17,6 +17,25 @@ public class Png {
    @Getter
    private List<Chunk> chunks;
 
+   public static Png fromBytes(List<Byte> bytes) {
+      List<Byte> header = bytes.subList(0, 8);
+      Png png = new Png(new ArrayList<>());
+      if (png.isHeaderValid(header)) {
+         int begin = 8;
+         int end = begin + 4;
+         while (end < bytes.size()) {
+            int length = ChunkHelper.fromBytesToInt(bytes.subList(begin, end));
+            end += length + 8;
+            png.getChunks().add(Chunk.fromBytes(bytes.subList(begin, end)));
+            begin = end;
+            end += 4;
+         }
+         return png;
+      } else {
+         throw new Error("Header is invalid");
+      }
+   }
+
    public boolean isHeaderValid(List<Byte> header) {
       return Arrays.equals(header.toArray(new Byte[0]), Png.STANDARD_HEADER);
    }

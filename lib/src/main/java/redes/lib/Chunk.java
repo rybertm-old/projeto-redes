@@ -41,17 +41,17 @@ public class Chunk {
 
     public static Chunk fromBytes(List<Byte> chunk) throws InvalidParameterException {
         Integer offset = 0;
-        Integer length = ChunkHelper.fromBytesToInt(subList(chunk, 0, 4));
+        Integer length = ChunkHelper.fromBytesToInt(chunk.subList(0, 4));
         offset += 4;
 
-        var type = subList(chunk, offset, offset + 4);
+        var type = chunk.subList(offset, offset + 4);
         var chunkType = ChunkType.fromBytes(type);
         offset += 4;
 
-        var data = subList(chunk, offset, offset + length);
+        var data = chunk.subList(offset, offset + length);
         offset += length;
 
-        int valueCrc = ChunkHelper.fromBytesToInt(subList(chunk, offset, offset + 4));
+        int valueCrc = ChunkHelper.fromBytesToInt(chunk.subList(offset, offset + 4));
 
         type.addAll(data);
         var bytes = new byte[type.size()];
@@ -72,21 +72,6 @@ public class Chunk {
     public List<Byte> asBytes() {
         return StreamEx.of(ChunkHelper.fromIntToBytes(this.length)).append(this.chunkType.asBytes()).append(this.data)
                 .append(ChunkHelper.fromIntToBytes(this.crc)).toList();
-    }
-
-    private static List<Byte> subList(List<Byte> data, int start, int end) {
-        int size = end - start;
-        if (size == 0) {
-            return new ArrayList<>(1);
-        }
-
-        var list = new ArrayList<Byte>(size);
-
-        for (int i = start; i < end; i++) {
-            list.add(data.get(i));
-        }
-
-        return list;
     }
 
     public String toString() {
