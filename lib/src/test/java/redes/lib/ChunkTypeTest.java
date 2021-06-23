@@ -5,7 +5,6 @@ package redes.lib;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.security.InvalidParameterException;
@@ -62,9 +61,9 @@ public class ChunkTypeTest {
         assertTrue(chunk.isReservedBitValid());
     }
 
-    @Test
+    @Test(expected = InvalidParameterException.class)
     public void testChunkTypeIsReservedBitInvalid() {
-        assertThrows(InvalidParameterException.class, () -> ChunkType.fromString("Rust"));
+        ChunkType.fromString("Rust");
     }
 
     @Test
@@ -85,9 +84,9 @@ public class ChunkTypeTest {
         assertTrue(chunk.isValid());
     }
 
-    @Test
+    @Test(expected = InvalidParameterException.class)
     public void testChunkTypeIsInvalid() {
-        assertThrows(InvalidParameterException.class, () -> ChunkType.fromString("Rust"));
+        ChunkType.fromString("Rust");
     }
 
     @Test
