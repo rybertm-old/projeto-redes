@@ -17,26 +17,30 @@ public class Png {
    @Getter
    private List<Chunk> chunks;
 
-   public static Png fromBytes(List<Byte> bytes) {
+   public static Png fromBytes(List<Byte> bytes) throws IllegalArgumentException {
       List<Byte> header = bytes.subList(0, 8);
-      Png png = new Png(new ArrayList<>());
-      if (png.isHeaderValid(header)) {
-         int begin = 8;
-         int end = begin + 4;
+      if (Png.isHeaderValid(header)) {
+         var begin = 8;
+         var end = begin + 4;
+         List<Chunk> chunks = new ArrayList<>();
          while (end < bytes.size()) {
-            int length = ChunkHelper.fromBytesToInt(bytes.subList(begin, end));
+            int length = ChunkHelper.fromBytesToInt(new ArrayList<>(bytes.subList(begin, end)));
             end += length + 8;
-            png.getChunks().add(Chunk.fromBytes(bytes.subList(begin, end)));
+            chunks.add(Chunk.fromBytes(new ArrayList<>(bytes.subList(begin, end))));
             begin = end;
             end += 4;
          }
-         return png;
+         return new Png(chunks);
       } else {
-         throw new Error("Header is invalid");
+         throw new IllegalArgumentException("Invalid Header");
       }
    }
 
-   public boolean isHeaderValid(List<Byte> header) {
+   public static Png fromChunks(List<Chunk> chunks) {
+      return new Png(chunks);
+   }
+
+   public static boolean isHeaderValid(List<Byte> header) {
       return Arrays.equals(header.toArray(new Byte[0]), Png.STANDARD_HEADER);
    }
 
@@ -54,7 +58,7 @@ public class Png {
       }
    }
 
-   public Byte[] header() {
+   public static Byte[] header() {
       return Png.STANDARD_HEADER;
    }
 
