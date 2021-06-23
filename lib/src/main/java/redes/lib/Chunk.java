@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,9 +31,10 @@ public class Chunk {
 
     public Chunk(ChunkType chunkType, List<Byte> data) {
         List<Byte> type = chunkType.getChunk();
-        type.addAll(data);
+        var list = StreamEx.of(type.stream()).append(data.stream()).toList();
+        var bytes = ArrayUtils.toPrimitive(list.toArray(new Byte[0]));
         var crcGen = new CRC32();
-        crcGen.update(type.toString().getBytes());
+        crcGen.update(bytes);
 
         this.length = data.size();
         this.chunkType = chunkType;
@@ -41,23 +44,20 @@ public class Chunk {
 
     public static Chunk fromBytes(List<Byte> chunk) throws InvalidParameterException {
         Integer offset = 0;
-        Integer length = ChunkHelper.fromBytesToInt(chunk.subList(0, 4));
+        Integer length = ChunkHelper.fromBytesToInt(new ArrayList<>(chunk.subList(0, 4)));
         offset += 4;
 
-        var type = chunk.subList(offset, offset + 4);
+        var type = new ArrayList<>(chunk.subList(offset, offset + 4));
         var chunkType = ChunkType.fromBytes(type);
         offset += 4;
 
-        var data = chunk.subList(offset, offset + length);
+        var data = new ArrayList<>(chunk.subList(offset, offset + length));
         offset += length;
 
-        int valueCrc = ChunkHelper.fromBytesToInt(chunk.subList(offset, offset + 4));
+        int valueCrc = ChunkHelper.fromBytesToInt(new ArrayList<>(chunk.subList(offset, offset + 4)));
 
-        type.addAll(data);
-        var bytes = new byte[type.size()];
-        for (var i = 0; i < type.size(); i++) {
-            bytes[i] = type.get(i);
-        }
+        var byteList = StreamEx.of(type).append(data).toArray(Byte.class);
+        var bytes = ArrayUtils.toPrimitive(byteList);
         var crcGen = new CRC32();
         crcGen.update(bytes);
         int crc = (int) crcGen.getValue();

@@ -1,6 +1,7 @@
 package redes.lib;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class ChunkType {
     private static final String INVALID_SIZE = "Invalid chunk type size";
 
     @Getter
-    private List<Byte> chunk = Arrays.asList(new Byte[4]);
+    private List<Byte> chunk = new ArrayList<>(Arrays.asList(new Byte[4]));
 
     private ChunkType(List<Byte> chunk) {
         this.chunk = chunk;
@@ -40,7 +41,7 @@ public class ChunkType {
     }
 
     private static ChunkType fromByteArray(byte[] chunk) throws InvalidParameterException {
-        List<Byte> ch = Arrays.asList(new Byte[4]);
+        List<Byte> ch = new ArrayList<>(Arrays.asList(new Byte[4]));
         for (var i = 0; i < chunk.length; i++) {
             ch.set(i, chunk[i]);
         }

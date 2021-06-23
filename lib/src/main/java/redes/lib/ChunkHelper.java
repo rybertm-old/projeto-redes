@@ -1,50 +1,34 @@
 package redes.lib;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class ChunkHelper {
     private ChunkHelper() {
     }
 
     public static Integer fromBytesToInt(List<Byte> bytes) {
-        var array = bytes.toArray(new Byte[0]);
-        int n3 = (array[0] << 24) & Integer.rotateRight(0xFF, 8);
-        int n2 = (array[1] << 16) & Integer.rotateLeft(0xFF, 16);
-        int n1 = (array[2] << 8) & Integer.rotateLeft(0xFF, 8);
-        int n0 = array[3];
+        var temp = bytes.toArray(new Byte[0]);
+        var buffer = ByteBuffer.wrap(ArrayUtils.toPrimitive(temp));
+        buffer.order(ByteOrder.BIG_ENDIAN);
 
-        return n3 | n2 | n1 | n0;
-
-        // bytes.toArray(new Byte[0]);
-        // return ByteBuffer.wrap(ArrayUtils.toPrimitive(lengthInBytes)).getInt();
+        return buffer.getInt();
     }
 
     public static List<Byte> fromIntToBytes(Integer value) {
-        var b = new Byte[] { 0, 0, 0, 0 };
-        int n3 = value & 0xFF000000;
-        int n2 = value & 0x00FF0000;
-        int n1 = value & 0x0000FF00;
-        int n0 = value & 0x000000FF;
+        var buffer = ByteBuffer.allocate(4);
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.putInt(value);
+        var array = buffer.array();
+        var list = new ArrayList<Byte>();
 
-        b[0] = (byte) (n3 >> 24);
-        b[1] = (byte) (n2 >> 16);
-        b[2] = (byte) (n1 >> 8);
-        b[3] = (byte) n0;
-
-        return Arrays.asList(b);
-    }
-
-    private static List<Byte> subList(List<Byte> data, int start, int end) {
-        int size = end - start;
-        if (size == 0) {
-            return new ArrayList<>(1);
-        }
-
-        var list = new ArrayList<Byte>(size);
-
-        for (int i = start; i < end; i++) {
-            list.add(data.get(i));
+        for (byte item : array) {
+            list.add(item);
         }
 
         return list;
