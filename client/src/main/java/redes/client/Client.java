@@ -1,62 +1,86 @@
 package redes.client;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.file.Paths;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
+/**
+ * @author Robert Broketa
+ * @author Hiago Rios
+ */
 public class Client {
+
+    static final Options options = createCLIOptions();
+    static final CommandLineParser parser = new DefaultParser();
+    static final char DEFAULT_VALUE_SEPARATOR = ' ';
+
     public static void main(String[] args) {
-        var port = 6868;
+        Client client = new Client();
         if (args.length < 1) {
-            System.err.println("Please provide a image");
-            return;
+            printHelp();
+            System.exit(1);
         }
-        var path = Paths.get(args[0]);
+        client.run(args);
+    }
 
-        if (args.length > 1) {
-            port = Integer.parseInt(args[1]);
-        }
-
-        var file = path.toFile();
-        try (var fileStream = new FileInputStream(file); var socket = new Socket("localhost", port)) {
-            var output = socket.getOutputStream();
-            var dos = new DataOutputStream(output);
-
-            final var BUFFER_SIZE = 8192;
-            var buffer = new byte[BUFFER_SIZE];
-            var read = 0;
-
-            // Send file name
-            dos.writeUTF(file.getName());
-            // Send file length
-            dos.writeLong(file.length());
-            // Read file chunk by chunk and add it to the socket output stream
-            while ((read = fileStream.read(buffer)) > 0) {
-                dos.write(buffer, 0, read);
+    /**
+     * Parses the program arguments into options and runs the respective
+     * funcionalities
+     * 
+     * @param args The arguments to be parsed into commands and options
+     */
+    private void run(String[] args) {
+        try {
+            CommandLine line = parser.parse(options, args);
+            if (line.hasOption("t")) {
+                ClientConnector connector = new ClientConnector();
+                String imagePath = line.getOptionValue("t");
+                Integer port = null;
+                String portString = line.getOptionValue("p");
+                if (portString != null) {
+                    port = Integer.parseInt(portString);
+                }
+                connector.testImage(imagePath, port);
             }
-            System.out.println("File read");
-            // Send data
-            System.out.println("File sent");
-
-            var input = socket.getInputStream();
-            var reader = new BufferedReader(new InputStreamReader(input));
-
-            var line = "";
-
-            while (!line.equals("bye")) {
-                line = reader.readLine();
-                System.out.println(line);
-            }
-        } catch (UnknownHostException ex) {
-            System.err.println("Server not found: " + ex.getMessage());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            System.err.println("I/O error: " + ex.getMessage());
+        } catch (ParseException exp) {
+            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+            printHelp();
         }
+    }
+
+    /**
+     * Creates the accepted CLI options
+     * 
+     * @return The CLI {@code Options} object
+     */
+    private static Options createCLIOptions() {
+        Options options = new Options();
+
+        Option testImage = Option.builder("t").hasArg().argName("image-path")
+                .desc("Checks the specified image for a hidden message and prints it").longOpt("test-image")
+                .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
+        Option createImage = Option.builder("c").hasArg().argName("image-path")
+                .desc("Creates a copy of the specified image containing the given message").longOpt("create-image")
+                .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
+        Option port = Option.builder("p").hasArg().argName("port")
+                .desc("Defines the port used to connect with the test server").longOpt("port")
+                .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
+
+        options.addOption(testImage);
+        options.addOption(createImage);
+        options.addOption(port);
+        return options;
+    }
+
+    /**
+     * Prints the command-line interface help message
+     */
+    private static void printHelp() {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("client", options);
     }
 }
