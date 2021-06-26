@@ -1,0 +1,68 @@
+package redes.server;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.google.common.primitives.Bytes;
+
+public class ServerConnection extends Thread {
+    final String id;
+    final Socket socket;
+    final AtomicInteger connectionsCounter;
+
+    public ServerConnection(Socket socket, AtomicInteger connectionsCounter) {
+        this.id = socket.getInetAddress().toString();
+        this.socket = socket;
+        this.connectionsCounter = connectionsCounter;
+    }
+
+    @Override
+    public void run() {
+        listen();
+    }
+
+    private void listen() {
+        try {
+            var input = socket.getInputStream();
+            var dis = new DataInputStream(input);
+            var writer = new PrintWriter(socket.getOutputStream(), true);
+
+            final var BUFFER_SIZE = 8192;
+            var fileName = dis.readUTF();
+            System.out.println(String.format("CLIENT %s - Received file: %s", id, fileName));
+
+            final var fileSize = dis.readLong();
+            var size = fileSize;
+            System.out.println(String.format("CLIENT %s - File size: %d", id, fileSize));
+
+            var read = 0;
+            long total = 0;
+
+            var buffer = new byte[BUFFER_SIZE];
+            List<Byte> data = new ArrayList<>((int) fileSize);
+            System.out.println(String.format("CLIENT %s - Reading file", id));
+
+            while ((read = dis.read(buffer, 0, (int) Math.min(size, buffer.length))) > 0) {
+                data.addAll(Bytes.asList(buffer));
+                total += read;
+                System.out.println(String.format("CLIENT %s - Read: %d/%d - %.1f%%", id, total, fileSize,
+                        (double) total / fileSize * 100));
+                size -= read;
+            }
+
+            writer.println("byte");
+
+            socket.close();
+            connectionsCounter.decrementAndGet();
+        } catch (IOException | NullPointerException ex) {
+            System.out.println("Server exception when processing data: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        System.out.println(String.format("CLIENT %s - Done", id));
+    }
+}
