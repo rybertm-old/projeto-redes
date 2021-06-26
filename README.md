@@ -11,3 +11,4 @@ Created as an assignment for Network I, course of Computer Science from the Univ
 - [ ] Finish `Client` side socket communication
 - [ ] Define a `Client` <-> `Server` application protocol
 - [ ] Implement the protocol on both ends
+- [ ] Fix Broken Pipe when server reaches maximum connections
