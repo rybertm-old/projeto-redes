@@ -26,7 +26,7 @@ public class ClientConnector {
      * @param imagePath The path to the image which will be sent
      * @param port The port which the server is listening
      */
-    public void testImage(String imagePath, Integer port) {
+    public void testImage(String imagePath, Integer port, String encryption) {
         if (port == null) {
             port = DEFAULT_PORT;
         }
@@ -79,7 +79,7 @@ public class ClientConnector {
     private File getFileFromPathString(String pathString) {
         if (pathString == null) {
             System.err.println("Please provide a image");
-            System.exit(2);
+            System.exit(1);
         }
         Path path = Paths.get(pathString);
         return path.toFile();
