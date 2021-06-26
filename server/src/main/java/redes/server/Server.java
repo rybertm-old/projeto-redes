@@ -26,15 +26,44 @@ import org.apache.commons.cli.ParseException;
  */
 public class Server {
 
+    /**
+     * Server CLI options
+     */
     static final Options options = createCLIOptions();
+
+    /**
+     * CLI parser
+     */
     static final CommandLineParser parser = new DefaultParser();
+
+    /**
+     * Default separador
+     */
     static final char DEFAULT_VALUE_SEPARATOR = ' ';
+
+    /**
+     * Default server port
+     */
     static final int DEFAULT_PORT = 6868;
+
+    /**
+     * Default server simultaneous client limit
+     */
     static final int DEFAULT_CLIENT_LIMIT = 4;
 
+    /**
+     * Server port
+     */
     static int port;
+
+    /**
+     * Server client limit
+     */
     static int maxConnections;
 
+    /**
+     * Server application entry-point
+     */
     public static void main(String[] args) {
         try {
             CommandLine line = parser.parse(options, args);
