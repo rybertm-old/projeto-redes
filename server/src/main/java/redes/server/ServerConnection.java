@@ -70,6 +70,8 @@ public class ServerConnection extends Thread {
             if (message != null) {
                 writer.println("There's a hidden message: ");
                 writer.println(message);
+            } else {
+                writer.println("There's no hidden message");
             }
 
             writer.println("bye");
