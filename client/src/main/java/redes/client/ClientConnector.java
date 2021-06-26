@@ -38,29 +38,30 @@ public class ClientConnector {
         try (var fileStream = new FileInputStream(file); var socket = new Socket(host, port)) {
             var output = socket.getOutputStream();
             var dos = new DataOutputStream(output);
-
-            final var BUFFER_SIZE = 8192;
-            var buffer = new byte[BUFFER_SIZE];
-            var read = 0;
-
-            // Send file name
-            dos.writeUTF(file.getName());
-            // Send file length
-            dos.writeLong(file.length());
-            // Read file chunk by chunk and add it to the socket output stream
-            while ((read = fileStream.read(buffer)) > 0) {
-                dos.write(buffer, 0, read);
-            }
-
-            System.out.println("File read");
-            // Send data
-            System.out.println("File sent");
-
             var input = socket.getInputStream();
             var reader = new BufferedReader(new InputStreamReader(input));
 
-            var line = "";
+            var line = reader.readLine();
+            if (line.equals("ready")) {
+                final var BUFFER_SIZE = 8192;
+                var buffer = new byte[BUFFER_SIZE];
+                var read = 0;
 
+                // Send file name
+                dos.writeUTF(file.getName());
+                // Send file length
+                dos.writeLong(file.length());
+                // Read file chunk by chunk and add it to the socket output stream
+                while ((read = fileStream.read(buffer)) > 0) {
+                    dos.write(buffer, 0, read);
+                }
+
+                System.out.println("File read");
+                // Send data
+                System.out.println("File sent");
+            } else {
+                System.out.println(line);
+            }
             while (true) {
                 line = reader.readLine();
                 if (line.equals("bye")) {

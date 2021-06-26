@@ -79,7 +79,9 @@ public class Server {
 
             while (true) {
                 Socket socket = serverSocket.accept();
+                var writer = new PrintWriter(socket.getOutputStream(), true);
                 if (connectionsCounter.get() < maxConnections) {
+                    writer.println("ready");
                     connectionsCounter.incrementAndGet();
 
                     System.out.println(String.format("CLIENT %s - Connected", socket.getInetAddress()));
@@ -87,7 +89,6 @@ public class Server {
                     new ServerConnection(socket, connectionsCounter).start();
                 } else {
                     System.out.println("Reached connection limit");
-                    var writer = new PrintWriter(socket.getOutputStream(), true);
                     writer.println("Too many connections active. Try again later");
                     writer.println("bye");
                     socket.close();

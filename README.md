@@ -12,7 +12,7 @@ Created as an assignment for Network I, course of Computer Science from the Univ
 - [x] Define a `Client` <-> `Server` application protocol
 - [x] Implement the protocol on both ends
 - [x] Add host option to client CLI
-- [ ] Fix Broken Pipe when server reaches maximum connections
+- [x] Fix Broken Pipe when server reaches maximum connections
 - [ ] Finish docs
 
 ## Limitations
