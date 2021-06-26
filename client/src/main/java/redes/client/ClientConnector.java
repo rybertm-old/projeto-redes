@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 public class ClientConnector {
 
     private static final int DEFAULT_PORT = 6868;
+    private static final String DEFAULT_HOST = "localhost";
 
     /**
      * Retrieves and sends the specified image to the localhost server at the given
@@ -26,12 +27,15 @@ public class ClientConnector {
      * @param imagePath The path to the image which will be sent
      * @param port      The port which the server is listening
      */
-    public void testImage(String imagePath, Integer port) {
+    public void testImage(String imagePath, String host, Integer port) {
         if (port == null) {
             port = DEFAULT_PORT;
         }
+        if (host == null) {
+            host = DEFAULT_HOST;
+        }
         var file = getFileFromPathString(imagePath);
-        try (var fileStream = new FileInputStream(file); var socket = new Socket("localhost", port)) {
+        try (var fileStream = new FileInputStream(file); var socket = new Socket(host, port)) {
             var output = socket.getOutputStream();
             var dos = new DataOutputStream(output);
 

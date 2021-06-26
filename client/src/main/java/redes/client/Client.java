@@ -95,7 +95,8 @@ public class Client {
         if (portStr != null) {
             port = Integer.parseInt(portStr);
         }
-        connector.testImage(imagePath, port);
+        String host = line.getOptionValue("s");
+        connector.testImage(imagePath, host, port);
     }
 
     private static Png encodePng(CommandLine line) throws IOException, IllegalArgumentException {
@@ -191,6 +192,9 @@ public class Client {
         Option offset = Option.builder("o").hasArg().argName("offset")
                 .desc("Defines the offset of the CAESAR encryption option. Defaults to 13").longOpt("offset")
                 .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
+        Option host = Option.builder("s").hasArg().argName("host")
+                .desc("Defines the host used to connect with the test server. Defaults to localhost")
+                .longOpt("server-host").valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
         Option port = Option.builder("p").hasArg().argName("port")
                 .desc("Defines the port used to connect with the test server. Defaults to 6868").longOpt("port")
                 .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
@@ -201,6 +205,7 @@ public class Client {
         options.addOption(message);
         options.addOption(encryption);
         options.addOption(offset);
+        options.addOption(host);
         options.addOption(port);
         options.addOption(help);
         return options;
