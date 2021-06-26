@@ -1,10 +1,19 @@
 package redes.lib;
 
+import lombok.Getter;
+
 /**
  * The supported encoding options
  */
 public enum EncodingOptions {
-    CAESAR, XOR;
+    CAESAR(0b00000111), XOR(0b00000000);
+
+    private EncodingOptions(Integer value) {
+        this.value = Byte.valueOf(value.byteValue());
+    }
+
+    @Getter
+    private Byte value;
 
     /**
      * Does the same as {@code Enum.valueOf}, most probably less efficiently, but it
