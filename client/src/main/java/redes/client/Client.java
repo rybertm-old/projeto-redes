@@ -1,6 +1,10 @@
 package redes.client;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -65,16 +69,21 @@ public class Client {
             }
             if (line.hasOption("c")) {
                 // TODO create image
+                var enconding = getEncoding(line.getOptionValue("e")).toString();
+                var imagePath = line.getOptionValue("c");
+                if (!imagePath.endsWith(".png")) {
+                    throw new IllegalArgumentException("Not a valid PNG image");
+                }
                 var image = encodePng(line);
-                createNewImage(image);
+                createNewImage(imagePath, image, enconding);
             }
         } catch (ParseException exp) {
-            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+            System.err.println("Parsing failed. Reason: " + exp.getMessage());
             printHelp();
         } catch (IOException ex) {
-            System.out.println("Error while reading the image");
+            System.out.println("I/O Error: " + ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            System.out.println("Encryption option not supported");
+            System.out.println("Illegal Argument Error: " + ex.getMessage());
         }
     }
 
@@ -86,13 +95,7 @@ public class Client {
         if (portStr != null) {
             port = Integer.parseInt(portStr);
         }
-        String encryption = line.getOptionValue("e");
-        if (encryption == null) {
-            encryption = DEFAULT_ENCODING.toString();
-        } else {
-            validateEncryption(encryption);
-        }
-        connector.testImage(imagePath, port, encryption);
+        connector.testImage(imagePath, port);
     }
 
     private static Png encodePng(CommandLine line) throws IOException, IllegalArgumentException {
@@ -101,6 +104,7 @@ public class Client {
         String offsetStr = line.getOptionValue("o");
         Integer offset = null;
         if (encoding.equals(EncodingOptions.CAESAR)) {
+            System.out.println("Encryption not specified. Using CAESAR encryption");
             if (offsetStr == null) {
                 offset = DEFAULT_CAESAR_OFFSET;
                 System.out.println("Offset not specified. Using offset " + DEFAULT_CAESAR_OFFSET);
@@ -109,14 +113,19 @@ public class Client {
             }
         } else {
             if (offsetStr != null) {
-                System.out.println("XOR encryption does not need a offset, ignoring it.");
+                System.out.println("XOR encryption does not need an offset, ignoring it.");
             }
+        }
+
+        String message = line.getOptionValue("m");
+        if (message == null) {
+            throw new IllegalArgumentException("Please provide a message to encode on the image");
         }
 
         var imgBytes = Files.readAllBytes(Paths.get(imagePath));
         var png = Png.fromBytes(StreamEx.of(ArrayUtils.toObject(imgBytes)).toList());
         var type = ChunkType.fromString("reDe");
-        var encryptedMessage = Encoder.encode("Hidden Message", encoding, offset);
+        var encryptedMessage = Encoder.encode(message, encoding, offset);
         var firstByte = encoding.getValue();
         if (offset != null) {
             offset = offset << 3;
@@ -129,8 +138,27 @@ public class Client {
         return png;
     }
 
-    // TODO: Create new image from png
-    private static void createNewImage(Png image) {
+    private static void createNewImage(String imagePath, Png image, String encoding) throws IOException {
+        var path = Paths.get(imagePath);
+        var pathStr = path.getParent().toString() + '/';
+        var filename = path.getFileName().toString();
+        var filenameNoType = filename.substring(0, filename.length() - 4);
+        String newFile = pathStr.concat(filenameNoType).concat("_" + encoding + ".png");
+        try (var output = new FileOutputStream(newFile)) {
+            var dos = new DataOutputStream(output);
+
+            final var BUFFER_SIZE = 8192;
+            var buffer = new byte[BUFFER_SIZE];
+            var read = 0;
+            var imgBytes = ArrayUtils.toPrimitive(image.asBytes().toArray(new Byte[0]));
+            InputStream imgStream = new ByteArrayInputStream(imgBytes);
+
+            while ((read = imgStream.read(buffer)) > 0) {
+                dos.write(buffer, 0, read);
+            }
+        } catch (IOException ex) {
+            throw new IOException("Error while creating new image");
+        }
 
     }
 
@@ -155,6 +183,8 @@ public class Client {
         Option createImage = Option.builder("c").hasArg().argName("image-path")
                 .desc("Creates a copy of the specified image containing the given message").longOpt("create-image")
                 .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
+        Option message = Option.builder("m").hasArg().argName("message").desc("The message to encrypt")
+                .longOpt("message").valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
         Option encryption = Option.builder("e").hasArg().argName("encryption")
                 .desc("Defines the encryption method to be used when testing/creating the image. Defaults to CAESAR")
                 .longOpt("encryption").valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
@@ -168,6 +198,7 @@ public class Client {
 
         options.addOption(testImage);
         options.addOption(createImage);
+        options.addOption(message);
         options.addOption(encryption);
         options.addOption(offset);
         options.addOption(port);

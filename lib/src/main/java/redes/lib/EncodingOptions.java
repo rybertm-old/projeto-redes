@@ -25,6 +25,6 @@ public enum EncodingOptions {
                 return v;
             }
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Encryption not supported: " + value);
     }
 }
