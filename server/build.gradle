@@ -28,6 +28,7 @@ dependencies {
     implementation 'one.util:streamex:0.7.3'
 
     implementation 'commons-cli:commons-cli:1.4'
+    implementation 'org.apache.commons:commons-lang3:3.5'
 
     implementation project(':lib')
 }
