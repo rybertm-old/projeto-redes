@@ -9,11 +9,13 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import lombok.NoArgsConstructor;
 
+/**
+ * Class used to interact with the server
+ */
 @NoArgsConstructor
 public class ClientConnector {
 
@@ -90,7 +92,7 @@ public class ClientConnector {
             System.err.println("Please provide a image");
             System.exit(1);
         }
-        Path path = Paths.get(pathString);
+        var path = Paths.get(pathString);
         return path.toFile();
     }
 }

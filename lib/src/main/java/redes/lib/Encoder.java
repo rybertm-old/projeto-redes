@@ -9,8 +9,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Encoder {
 
+    /**
+     * The key used to encode using {@code XOR} encryption
+     */
     private static String key = "projetoRedes";
 
+    /**
+     * Encodes the message using the specified encryption option
+     * 
+     * @param message      Message to be encrypted
+     * @param encodeOption Encryption option to be used
+     * @param offset       Offset to be used with the {@code CAESAR} encryption
+     * @return The encrypted message
+     */
     public static String encode(String message, String encodeOption, Integer offset) {
         var newMessage = "";
         switch (EncodingOptions.getEnum(encodeOption)) {
@@ -27,18 +38,47 @@ public class Encoder {
         return newMessage;
     }
 
+    /**
+     * Encodes the message using the specified encryption option
+     * 
+     * @param message      Message to be encrypted
+     * @param encodeOption Encryption option to be used
+     * @return The encrypted message
+     */
     public static String encode(String message, String encodeOption) {
         return encode(message, encodeOption, null);
     }
 
+    /**
+     * Encodes the message using the specified encryption option
+     * 
+     * @param message      Message to be encrypted
+     * @param encodeOption Encryption option to be used
+     * @return The encrypted message
+     */
     public static String encode(String message, EncodingOptions encodeOption) {
         return encode(message, encodeOption.toString(), null);
     }
 
+    /**
+     * Encodes the message using the specified encryption option
+     * 
+     * @param message      Message to be encrypted
+     * @param encodeOption Encryption Option to be used
+     * @return The encrypted message
+     */
     public static String encode(String message, EncodingOptions encodeOption, Integer offset) {
         return encode(message, encodeOption.toString(), offset);
     }
 
+    /**
+     * Decodes the message using the specified encryption option
+     * 
+     * @param message      Message to be decrypted
+     * @param encodeOption Encryption option to be used
+     * @param offset       Offset to be used with the {@code CAESAR} encryption
+     * @return The encrypted message
+     */
     public static String decode(String message, String encodeOption, Integer offset) {
         var newMessage = "";
         switch (EncodingOptions.getEnum(encodeOption)) {
@@ -55,14 +95,35 @@ public class Encoder {
         return newMessage;
     }
 
+    /**
+     * Decodes the message using the specified encryption option
+     * 
+     * @param message      Message to be decrypted
+     * @param encodeOption Encryption option to be used
+     * @return The encrypted message
+     */
     public static String decode(String message, EncodingOptions encodeOption, Integer offset) {
         return decode(message, encodeOption.toString(), offset);
     }
 
+    /**
+     * Decodes the message using the specified encryption option
+     * 
+     * @param message      Message to be decrypted
+     * @param encodeOption Encryption option to be used
+     * @return The encrypted message
+     */
     public static String decode(String message, EncodingOptions encodeOption) {
         return decode(message, encodeOption.toString(), null);
     }
 
+    /**
+     * Decodes the message using the specified encryption option
+     * 
+     * @param message      Message to be decrypted
+     * @param encodeOption Encryption option to be used
+     * @return The encrypted message
+     */
     public static String decode(String message, String encodeOption) {
         return decode(message, encodeOption, null);
     }
@@ -105,7 +166,7 @@ public class Encoder {
     }
 
     /**
-     * Encodes a message using a simple XOR encoder
+     * Encodes a message using a simple XOR cipher
      * 
      * @param message to be encoded
      * @return The encoded message
@@ -127,7 +188,7 @@ public class Encoder {
     }
 
     /**
-     * Decodes a message using a simple XOR decoder
+     * Decodes a message using a simple XOR cipher
      * 
      * @param message to be decoded
      * @return The decoded message
