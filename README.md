@@ -17,5 +17,6 @@ Created as an assignment for Network I, course of Computer Science from the Univ
 
 ## Limitations
 
+- Encryption only works on ASCII characters
 - It only finds 1 hidden message, no order guaranteed
 - Hardcoded new image name [ORIGINAL_NAME_(*ENCRYPTION_NAME*).PNG]
