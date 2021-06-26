@@ -4,6 +4,14 @@ Client-server project for encoding/decoding messages inside PNG files
 
 Created as an assignment for Network I, course of Computer Science from the Universidade Estadual de Santa Cruz - Bahia, Brazil
 
+## Usage
+- For Unix environments:
+  - Grant executable permission to gradlew
+- Run the following commands using the gradle wrapper (gradlew):
+  - `gradlew server:run --args="<ARGS>"` to run the server with ARGS as arguments
+  - `gradlew client:run --args="<ARGS>"` to run the client with ARGS as arguments
+- For help, use `-h` or `--help` as `ARGS`
+
 ## Protocol
 
 - The type of the private chunk is "reDe"
