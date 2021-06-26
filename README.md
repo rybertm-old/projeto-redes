@@ -6,9 +6,6 @@ Created as an assignment for Network I, course of Computer Science from the Univ
 
 ## TODO List
 
-- [ ] Finish PNG decoder
-- [ ] Finish `Server` side socket communication
-- [ ] Finish `Client` side socket communication
-- [ ] Define a `Client` <-> `Server` application protocol
-- [ ] Implement the protocol on both ends
 - [ ] Fix Broken Pipe when server reaches maximum connections
+- [ ] Add host option to client CLI
+- [ ] Finish docs
