@@ -23,9 +23,11 @@ public class Png {
 
    /**
     * Creates a {@code Png} from a {@code List<Byte>}
+    * 
     * @param bytes The bytes to create the Png from
     * @return A {@code Png} instance
-    * @throws IllegalArgumentException If the header does not correspond the valid PNG header
+    * @throws IllegalArgumentException If the header does not correspond the valid
+    *                                  PNG header
     */
    public static Png fromBytes(List<Byte> bytes) throws IllegalArgumentException {
       List<Byte> header = bytes.subList(0, 8);
@@ -42,12 +44,13 @@ public class Png {
          }
          return new Png(chunks);
       } else {
-         throw new IllegalArgumentException("Invalid Header");
+         throw new IllegalArgumentException("Invalid Header. The file may not be a valid PNG image");
       }
    }
 
    /**
     * Creates a {@code Png} from a {@code List<Chunk>}
+    * 
     * @param chunks The chunks to create the Png from
     * @return A {@code Png} instance
     */
@@ -57,6 +60,7 @@ public class Png {
 
    /**
     * Checks if the {@code List<byte>} is a valid PNG header
+    * 
     * @param header The {@code List<Byte>} to be tested
     * @return True if the header is a valid PNG header, false otherwise
     */
@@ -66,6 +70,7 @@ public class Png {
 
    /**
     * Appends the given {@code Chunk} to the end of this {@code Png} list of chunks
+    * 
     * @param chunk The {@code Chunk} to be appended
     */
    public void appendChunk(Chunk chunk) {
@@ -73,7 +78,9 @@ public class Png {
    }
 
    /**
-    * Removes the first chunk of the specified {@code ChunkType} from this {@code Png} list of chunks
+    * Removes the first chunk of the specified {@code ChunkType} from this
+    * {@code Png} list of chunks
+    * 
     * @param chunkType
     * @throws IllegalArgumentException
     */
@@ -87,7 +94,9 @@ public class Png {
       }
    }
 
-   /** Returns the standard {@code Byte[]} header expected for PNG files
+   /**
+    * Returns the standard {@code Byte[]} header expected for PNG files
+    * 
     * @return The {@code Byte[]} header
     */
    public static Byte[] header() {
@@ -96,6 +105,7 @@ public class Png {
 
    /**
     * Creates a {@code List<Byte>} representation of this {@code Png} data
+    * 
     * @return The {@code List<Byte>}
     */
    public List<Byte> asBytes() {
@@ -110,10 +120,12 @@ public class Png {
    }
 
    /**
-    * Iterates over this {@code Png} chunks checking if each one's type matches
-    * the specified {@code ChunkType} and returns the first match
+    * Iterates over this {@code Png} chunks checking if each one's type matches the
+    * specified {@code ChunkType} and returns the first match
+    * 
     * @param chunkType The {@code ChunkType} to search for
-    * @return The first {@code Chunk} of the specified {@code ChunkType} if any is found, empty otherwise
+    * @return The first {@code Chunk} of the specified {@code ChunkType} if any is
+    *         found, empty otherwise
     */
    public Optional<Chunk> chunkByType(String chunkType) {
       for (var chunk : this.chunks) {

@@ -17,20 +17,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClientConnector {
 
-    private final int DEFAULT_PORT = 6868;
+    private static final int DEFAULT_PORT = 6868;
 
     /**
      * Retrieves and sends the specified image to the localhost server at the given
      * port and prints the response until a 'bye' is received
      * 
      * @param imagePath The path to the image which will be sent
-     * @param port The port which the server is listening
+     * @param port      The port which the server is listening
      */
-    public void testImage(String imagePath, Integer port, String encryption) {
+    public void testImage(String imagePath, Integer port) {
         if (port == null) {
             port = DEFAULT_PORT;
         }
-        File file = getFileFromPathString(imagePath);
+        var file = getFileFromPathString(imagePath);
         try (var fileStream = new FileInputStream(file); var socket = new Socket("localhost", port)) {
             var output = socket.getOutputStream();
             var dos = new DataOutputStream(output);
@@ -47,6 +47,7 @@ public class ClientConnector {
             while ((read = fileStream.read(buffer)) > 0) {
                 dos.write(buffer, 0, read);
             }
+
             System.out.println("File read");
             // Send data
             System.out.println("File sent");
@@ -56,8 +57,11 @@ public class ClientConnector {
 
             var line = "";
 
-            while (!line.equals("bye")) {
+            while (true) {
                 line = reader.readLine();
+                if (line.equals("bye")) {
+                    break;
+                }
                 System.out.println(line);
             }
         } catch (ConnectException ex) {
