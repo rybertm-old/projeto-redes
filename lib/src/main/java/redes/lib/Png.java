@@ -18,6 +18,9 @@ import lombok.NoArgsConstructor;
 public class Png {
    private static final Byte[] STANDARD_HEADER = { (byte) 137, 80, 78, 71, 13, 10, 26, 10 };
 
+   /**
+    * The PNG data
+    */
    @Getter
    private List<Chunk> chunks;
 

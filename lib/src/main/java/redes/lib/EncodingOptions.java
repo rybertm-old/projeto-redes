@@ -3,7 +3,7 @@ package redes.lib;
 import lombok.Getter;
 
 /**
- * The supported encoding options
+ * The supported encryption options
  */
 public enum EncodingOptions {
     CAESAR(0b00000111), XOR(0b00000000);
@@ -12,6 +12,9 @@ public enum EncodingOptions {
         this.value = Byte.valueOf(value.byteValue());
     }
 
+    /**
+     * The byte representation of the encoding option
+     */
     @Getter
     private Byte value;
 

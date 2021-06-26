@@ -36,12 +36,30 @@ import redes.lib.Png;
  */
 public class Client {
 
+    /**
+     * Client CLI options
+     */
     static final Options options = createCLIOptions();
+    /**
+     * CLI parser
+     */
     static final CommandLineParser parser = new DefaultParser();
+    /**
+     * Default separator
+     */
     static final char DEFAULT_VALUE_SEPARATOR = ' ';
+    /**
+     * Default encoding to use
+     */
     static final EncodingOptions DEFAULT_ENCODING = EncodingOptions.CAESAR;
+    /**
+     * Default offset to be used with the {@code CAESAR} encryption
+     */
     static final Integer DEFAULT_CAESAR_OFFSET = 13;
 
+    /**
+     * Client ppplication entry point
+     */
     public static void main(String[] args) {
         var client = new Client();
         if (args.length < 1) {
@@ -68,7 +86,6 @@ public class Client {
                 runImageTest(line);
             }
             if (line.hasOption("c")) {
-                // TODO create image
                 var enconding = getEncoding(line.getOptionValue("e")).toString();
                 var imagePath = line.getOptionValue("c");
                 if (!imagePath.endsWith(".png")) {
@@ -87,6 +104,11 @@ public class Client {
         }
     }
 
+    /**
+     * Sends the image to the server to be tested for an existing hidden message
+     * 
+     * @param line {@code CLI} object to extract the {@code CLI} options from
+     */
     private static void runImageTest(CommandLine line) {
         var connector = new ClientConnector();
         String imagePath = line.getOptionValue("t");
@@ -99,6 +121,14 @@ public class Client {
         connector.testImage(imagePath, host, port);
     }
 
+    /**
+     * Encodes message in a PNG image
+     * 
+     * @param line {@code CLI} object to extract the {@code CLI} options from
+     * @return The PNG object with the encoded message
+     * @throws IOException              If the image does not exist
+     * @throws IllegalArgumentException If a message is not provided
+     */
     private static Png encodePng(CommandLine line) throws IOException, IllegalArgumentException {
         var imagePath = line.getOptionValue("c");
         EncodingOptions encoding = getEncoding(line.getOptionValue("e"));
@@ -110,6 +140,7 @@ public class Client {
                 offset = DEFAULT_CAESAR_OFFSET;
                 System.out.println("Offset not specified. Using offset " + DEFAULT_CAESAR_OFFSET);
             } else {
+                // Wraps the offset to the 0-26 range
                 offset = Integer.parseInt(offsetStr) % 26;
             }
         } else {
@@ -127,9 +158,22 @@ public class Client {
         var png = Png.fromBytes(StreamEx.of(ArrayUtils.toObject(imgBytes)).toList());
         var type = ChunkType.fromString("reDe");
         var encryptedMessage = Encoder.encode(message, encoding, offset);
+        /**
+         * The encryption method is encoded using the first 3 *bits* of a **byte**, the
+         * last 5 bits is used to encode the offset, in case of the CAESAR encryption
+         */
+        // Here the byte value of an encoding will be a number between 0-7 (2^3), which
+        // means it has it's bits represented as [0b00000XXX], X being 0 or 1
         var firstByte = encoding.getValue();
+        // If offset is not null that means its using the CAESAR encryption
         if (offset != null) {
+            // Since offset is at most 26, it fits in 5 bits(2^5 = 32), so if we shift it 3
+            // bits to the left we get an integer with it's bits represented as
+            // [0bXXXXX000], X being 0 or 1
             offset = offset << 3;
+            // Here we OR offset bits with firstByte bits to get an integer with it's bits
+            // represented as [0bXXXXXYYY], X being the bits beloging to offset, and Y being
+            // the bits beloging to firstByte
             firstByte = (byte) (offset | firstByte);
         }
         var data = StreamEx.of(firstByte).append(ArrayUtils.toObject(encryptedMessage.getBytes())).toList();
@@ -139,8 +183,17 @@ public class Client {
         return png;
     }
 
-    private static void createNewImage(String imagePath, Png image, String encoding) throws IOException {
-        var path = Paths.get(imagePath);
+    /**
+     * Creates a new image with the encoding used appended to its name
+     * 
+     * @param originalImagePath Original image path
+     * @param image             PNG object representation of the image
+     * @param encoding          Encoding used
+     * @throws IOException If the there is an error while writing to the new image
+     *                     buffer
+     */
+    private static void createNewImage(String originalImagePath, Png image, String encoding) throws IOException {
+        var path = Paths.get(originalImagePath);
         var pathStr = path.getParent().toString() + '/';
         var filename = path.getFileName().toString();
         var filenameNoType = filename.substring(0, filename.length() - 4);
@@ -163,6 +216,14 @@ public class Client {
 
     }
 
+    /**
+     * Gets the {@link EncodingOptions} from the given string
+     * 
+     * @param encoding The encoding option
+     * @return The encoding option enum
+     * @throws IllegalArgumentException If there is no encoding option matching the
+     *                                  given string
+     */
     private static EncodingOptions getEncoding(String encoding) throws IllegalArgumentException {
         if (encoding != null) {
             return EncodingOptions.getEnum(encoding);
@@ -217,18 +278,5 @@ public class Client {
     private static void printHelp() {
         var formatter = new HelpFormatter();
         formatter.printHelp("client", options);
-    }
-
-    /**
-     * Checks if the encryption is supported by the encoder
-     * 
-     * @param encryption {@code String} to be tested
-     * @return True if the encryption is supported, false otherwise
-     */
-    private static void validateEncryption(String encryption) {
-        if (!encryption.equalsIgnoreCase(DEFAULT_ENCODING.toString())) {
-            System.err.println("Encryption not supported: " + encryption);
-            System.exit(2);
-        }
     }
 }

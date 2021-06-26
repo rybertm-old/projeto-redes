@@ -12,23 +12,41 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import one.util.streamex.StreamEx;
 
+/**
+ * A PNG image chunk representation
+ */
 @AllArgsConstructor
 @EqualsAndHashCode
 public class Chunk {
     private static final String INVALID_CHUNK = "Invalid chunk";
 
+    /**
+     * Length of the chunk
+     */
     @Getter
     private Integer length;
 
+    /**
+     * The type of the chunk
+     */
     @Getter
     private ChunkType chunkType;
 
+    /**
+     * The chunk data
+     */
     @Getter
     private List<Byte> data;
 
+    /**
+     * The {@link CRC32} of the chunk
+     */
     @Getter
     private Integer crc;
 
+    /**
+     * Creates a new Chunk object
+     */
     public Chunk(ChunkType chunkType, List<Byte> data) {
         List<Byte> type = chunkType.getChunk();
         var list = StreamEx.of(type.stream()).append(data.stream()).toList();
@@ -42,6 +60,13 @@ public class Chunk {
         this.crc = (int) crcGen.getValue();
     }
 
+    /**
+     * Creates a {@code Chunk} from a list of bytes
+     * 
+     * @param chunk Byte list
+     * @return A valid chunk
+     * @throws InvalidParameterException If a chunk is not valid
+     */
     public static Chunk fromBytes(List<Byte> chunk) throws InvalidParameterException {
         Integer offset = 0;
         Integer length = ChunkHelper.fromBytesToInt(new ArrayList<>(chunk.subList(0, 4)));
@@ -69,6 +94,11 @@ public class Chunk {
         }
     }
 
+    /**
+     * Returns a representation of the chunk as a list of bytes
+     * 
+     * @return The chunk representation as a list of bytes
+     */
     public List<Byte> asBytes() {
         return StreamEx.of(ChunkHelper.fromIntToBytes(this.length)).append(this.chunkType.asBytes()).append(this.data)
                 .append(ChunkHelper.fromIntToBytes(this.crc)).toList();
