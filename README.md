@@ -14,3 +14,8 @@ Created as an assignment for Network I, course of Computer Science from the Univ
 - [ ] Fix Broken Pipe when server reaches maximum connections
 - [ ] Add host option to client CLI
 - [ ] Finish docs
+
+## Limitations
+
+- It only finds 1 hidden message, no order guaranteed
+- Hardcoded new image name [ORIGINAL_NAME_(*ENCRYPTION_NAME*).PNG]
