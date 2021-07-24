@@ -1,9 +1,13 @@
 package redes.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.CommandLine;
@@ -87,7 +91,9 @@ public class Server {
                 System.exit(2);
             }
 
-            listen(port, maxConnections);
+            boolean showIp = line.hasOption("e");
+
+            listen(port, maxConnections, showIp);
         } catch (ParseException exp) {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
             printHelp();
@@ -100,10 +106,13 @@ public class Server {
      * @param port           The port which the server will listen on
      * @param maxConnections The limit of simultaneous connections
      */
-    private static void listen(int port, int maxConnections) {
+    private static void listen(int port, int maxConnections, boolean showIp) {
         AtomicInteger connectionsCounter = new AtomicInteger(0);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
+            if (showIp) {
+                System.out.println("External IP: " + getExternalIpAddress());
+            }
             System.out.println("Up to " + maxConnections + " connections available");
 
             while (true) {
@@ -130,6 +139,24 @@ public class Server {
     }
 
     /**
+     * Gets the machine's external IP address using Amazon API
+     * @return The IP as {@code String}
+     */
+    private static String getExternalIpAddress() {
+        try {
+            URL whatismyip = new URL("http://checkip.amazonaws.com");
+            BufferedReader in;
+            in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+            String ip = in.readLine();
+            in.close();
+            return ip;
+        } catch (IOException ex) {
+            return "could not get";
+        }
+
+    }
+
+    /**
      * Creates the accepted CLI options
      * 
      * @return The CLI {@code Options} object
@@ -140,12 +167,15 @@ public class Server {
         Option port = Option.builder("p").hasArg().argName("port")
                 .desc("Defines the port to listen to. Defaults to " + DEFAULT_PORT).longOpt("port")
                 .valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
+        Option printExternalIp = Option.builder("e").desc("Prints the external IP. Disabled by default")
+                .longOpt("external-ip").build();
         Option maxClients = Option.builder("c").hasArg().argName("clients-limit")
                 .desc("Defines the maximum clients to accept simultaneously. Defaults to " + DEFAULT_CLIENT_LIMIT)
                 .longOpt("max-clients").valueSeparator(DEFAULT_VALUE_SEPARATOR).build();
         Option help = Option.builder("h").desc("Prints this message").longOpt("help").build();
 
         options.addOption(port);
+        options.addOption(printExternalIp);
         options.addOption(maxClients);
         options.addOption(help);
         return options;
